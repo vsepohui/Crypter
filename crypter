@@ -1,0 +1,173 @@
+#!/usr/bin/perl
+
+use 5.022;
+use warnings;
+
+use Getopt::Long qw(GetOptions);
+
+main();
+exit;
+
+
+sub main {
+	my $usage = "Usage:\n\t$0 [--help|-h] [--input|-i=inputfile] [--output|-o=outputfile] [--password=....] [inputfile] [outputfile]  [-] [-]";
+	my %args = process_command_line(qw/i|input=s o|output=s p|password=s h|help/, $usage);
+	
+	say $usage and exit unless scalar @ARGV;
+	
+	my $password = $args{password} // '123456';
+	
+	my $stdout = ($ARGV[-1] // '') eq '-';
+	my $stdin = ($ARGV[-2] // '') eq '-';
+
+	my $file = $args{input} // $ARGV[-1] // '';
+
+	my $input = '';
+	if ($stdin || !(-f $file)) {
+		$input = join '', <>;
+	} else {
+		my $fh;
+		open $fh, $file;
+		$input = join '', <$fh>;
+		close $fh;
+	}
+	
+	my @random;
+	
+	my $strong = $args{strong} || 256;
+	for (1..int(length($password)/2+.5)) {
+		my $rnd = new Random;
+		$rnd->rand();
+		
+		my $p = substr($password, 2*$_-2, 2);
+		$p .= ' ' if (length $p == 1);
+		
+		my $x = join '', map {ord} split //, $p;
+		
+		for (1..$x) {$rnd->rand()}
+		
+		push @random, {
+			generator 	=> $rnd,
+			seed		=> $rnd->{seed},
+		};
+	}
+	
+	my @input = split //, $input;
+	
+	my $n = 0;
+	
+	my $out = '';
+	for (my $i = 0 ; $i < scalar @input ; $i ++) {
+		my $chr = $input[$i];
+		my $ord = ord $chr;
+		
+		
+		my $r = $random[$n];
+		$n = 0 if (++$n >= scalar @random);
+		my $s = $r->{generator}->rand(256);
+		
+		my $ord2 = $ord ^ $s;
+		
+		$out .= chr $ord2;
+	}
+	
+	print $out;
+}
+
+
+
+
+# Usefull util for parsing command-line
+sub process_command_line {
+	my $usage = pop; # Get last param, it's Usage text
+	my @opts  = @_;  # Get params
+	
+	# Prepare from GetOptions syntax option to key-names
+	my $prepare = sub {
+		my $opt = shift;
+		$opt =~ s/\=s$//;
+		$opt =~ s/^\w\|(\w+)$/$1/;
+		return $opt;
+	};
+	
+	my %args = ();
+	GetOptions(map {$_ => \$args{$prepare->($_)}} @opts);
+	
+	# Show usage, it catchet --help command-line param
+	say $usage and exit() if $args{help};
+	
+	return %args;
+}
+
+
+package Random;
+
+use Time::HiRes;
+
+
+sub new {
+	my $class = shift;
+	my $seed  = shift;
+	
+	my $self = {
+		seed => $seed // $class->shuffle_seed(),
+	};
+	
+	$self = bless $self, $class;
+	$self->srand($self->{seed});
+	
+	return $self;
+}
+
+
+sub shuffle_seed {
+	my $class = shift;
+	return (join '.', reverse Time::HiRes::gettimeofday) . $$;
+}
+
+sub srand {
+	my $self = shift;
+	my $seed = shift // $self->shuffle_seed();
+	$self->{seed} = $seed;
+}
+
+
+sub harmonic {
+	my $self = shift;
+	my $x = $self->{seed};
+	
+	state $half_freq = 2/7.0;
+
+	my $step = int ($x / $half_freq);
+	$x -= $step * $half_freq;
+
+	return ($step % 2 ? -1 : 1)*sqrt (1 - $x*$x);
+}
+
+
+sub rand {
+	my $self = shift;
+	my $num = shift;
+	
+	my $r = ($self->harmonic()+1)/2.0;
+	$self->{seed} *= $r+1.5;
+	$self->{seed} /= 2 if ($self->{seed} >= 100000000);
+
+	my $s = $r;
+	$s =~ s/\.//;
+	$r *= substr($s, -5, -1) || 0;
+	$r = substr($r, 0, 22);
+	$r =~ s/\.//;
+	$r = '0.'.$r;
+
+	return $num ? int $num * $r : $r;
+}
+
+
+
+
+
+1;
+
+
+1;
