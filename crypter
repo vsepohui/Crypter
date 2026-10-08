@@ -10,27 +10,22 @@ exit;
 
 
 sub main {
-	my $usage = "Usage:\n\t$0 [--help|-h] [--input|-i=inputfile] [--output|-o=outputfile] [--password=....] [inputfile] [outputfile]  [-] [-]";
+	my $usage = "Usage:\n\t$0 [--help|-h] [--input|-i=inputfile] [--output|-o=outputfile] [--password=....]";
 	my %args = process_command_line(qw/i|input=s o|output=s p|password=s h|help/, $usage);
 	
-	say $usage and exit unless scalar @ARGV;
 	
 	my $password = $args{password} // '123456';
 	
-	my $stdout = ($ARGV[-1] // '') eq '-';
-	my $stdin = ($ARGV[-2] // '') eq '-';
-
-	my $file = $args{input} // $ARGV[-1] // '';
+	my $file = $args{input} or die say $usage;
+	my $output = $args{output} or die say $usage;
 
 	my $input = '';
-	if ($stdin || !(-f $file)) {
-		$input = join '', <>;
-	} else {
-		my $fh;
-		open $fh, $file;
-		$input = join '', <$fh>;
-		close $fh;
-	}
+
+	my $fh;
+	open $fh, $file;
+	$input = join '', <$fh>;
+	close $fh;
+
 	
 	my @random;
 	
@@ -71,7 +66,12 @@ sub main {
 		$out .= chr $ord2;
 	}
 	
-	print $out;
+	if ($output) {
+		my $fh;
+		open $fh, '>', $file;
+		print $fh $out;
+		close $fh;
+	} 
 }
 
 
