@@ -68,7 +68,7 @@ sub main {
 	
 	if ($output) {
 		my $fh;
-		open $fh, '>', $file;
+		open $fh, '>', $output;
 		print $fh $out;
 		close $fh;
 	} 
