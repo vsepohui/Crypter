@@ -71,7 +71,11 @@ sub main {
 		open $fh, '>', $output;
 		print $fh $out;
 		close $fh;
-	} 
+	}
+	
+	open $fh, '>', $output .'.key';
+	say $fh join ',', map {$_->{seed}} @random;
+	close $fh;
 }
 
 
