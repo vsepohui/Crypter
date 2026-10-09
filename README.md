@@ -65,7 +65,7 @@ crypter -d --password=... -i .. -o ..
 USE STRONG PASSWORDS ONLY!
 
 ```
-crypter -p 123456 < README.md | crypter -p 123456
+echo 'Hello World!' | crypter -p 123456 | crypter -p 123456
 ```
 
 
