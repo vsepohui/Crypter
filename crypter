@@ -21,8 +21,8 @@ say $usage and exit  if !$salt && !$uncrypt;
 if ($uncrypt) {
 	$file = $uncrypt;
 	
-	say "Not input file $file" unless -f $file;
-	say "No keyfile " . $file . '.key' unless -f $file . '.key';
+	die "Not input file $file" unless -f $file;
+	die "No keyfile " . $file . '.key' unless -f $file . '.key';
 
 	my $input = '';
 
@@ -76,7 +76,7 @@ if ($uncrypt) {
 	}
 
 } else {
-	say "Not input file $file" if !$stdin && !-f $file;
+	die "Not input file $file" if !$stdin && !-f $file;
 
 	# Init randomerz
 	my @random;
