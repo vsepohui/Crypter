@@ -94,7 +94,7 @@ sub crypt {
 		@_,
 	);
 	
-	$self = __PACKAGE__->new(%opts) unless ref $self;
+	$self = $self ? $self->new(%opts) : __PACKAGE__->new(%opts) unless ref $self;
 	
 	my $password	= $self->{password};
 	my $salt   		= $self->{salt};
@@ -174,7 +174,7 @@ sub uncrypt {
 		@_,
 	);
 	
-	$self = __PACKAGE__->new(%opts) unless ref $self;
+	$self = $self ? $self->new(%opts) : __PACKAGE__->new(%opts) unless ref $self;
 	
 	my $password	= $self->{password};
 	my $input  		= $opts{input};
