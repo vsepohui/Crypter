@@ -64,6 +64,8 @@ if ($uncrypt) {
 			my $rnd = new Strong::Random($x);
 			$rnd->rand();
 			
+			$rnd->rand for 1..unpack('s', $p) % 256;
+			
 			my $seed = sprintf("%.8f", $rnd->{seed});
 			
 			push @random, {
@@ -161,6 +163,8 @@ if ($uncrypt) {
 
 			my $rnd = new Strong::Random($x);
 			$rnd->rand();
+			
+			$rnd->rand for 1..unpack('s', $p) % 256;
 			
 			my $seed = sprintf("%.8f", $rnd->{seed});
 			
