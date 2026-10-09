@@ -13,14 +13,12 @@ my %args = process_command_line(qw/i|input=s o|output=s p|password=s h|help/, $u
 my $file = $args{input} or say $usage and exit;
 my $output = $args{output} or say $usage and exit;
 
+say "Not input file $file" unless -f $file;
+say "No keyfile " . $file . '.key' unless -f $file . '.key';
+
 my $input = '';
 
 my $fh;
-open $fh, $file;
-binmode $fh;
-$input = join '', <$fh>;
-close $fh;
-
 open $fh, $file . '.key';
 my $key = join '', <$fh>;
 close $fh;
@@ -30,36 +28,36 @@ my @random = map {{
 	seed 		=> $_ 
 }} split /,/, $key;
 
-my @input = split //, $input;
+
+my $fo;
+open $fo, '>', $output;
+binmode $fo;
+
+open $fh, $file;
+binmode $fh;
 
 my $n = 0;
+while (my $str = <$fh>) {
+	my @input = split //, $str;
+	my $out = '';
+	for (my $i = 0 ; $i < scalar @input ; $i ++) {
+		my $chr = $input[$i];
+		my $ord = ord $chr;
+		
+		
+		my $r = $random[$n];
+		$n = 0 if (++$n >= scalar @random);
+		my $s = $r->{generator}->rand(256);
 
-
-
-my $out = '';
-for (my $i = 0 ; $i < scalar @input ; $i ++) {
-	my $chr = $input[$i];
-	my $ord = ord $chr;
-	
-	
-	my $r = $random[$n];
-	$n = 0 if (++$n >= scalar @random);
-	my $s = $r->{generator}->rand(256);
-
-	
-	my $ord2 = $ord ^ $s;
-	
-	$out .= chr $ord2;
+		
+		my $ord2 = $ord ^ $s;
+		
+		$out .= chr $ord2;
+	}
+	print $fo $out;
 }
-
-if ($output) {
-	my $fh;
-	open $fh, '>', $output;
-	print $fh $out;
-	close $fh;
-}
-
-
+close $fh;
+close $fo;
 
 
 
