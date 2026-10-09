@@ -4,7 +4,7 @@ Crypter: new kind of cryptography!
 
 ## Stron::Random
 
-Install from [https://github.com/vsepohui/Strong-Random]
+Install from https://github.com/vsepohui/Strong-Random
 
 
 # Using Crypter
