@@ -10,6 +10,8 @@ Crypter - new kind of cryptography!
 
 Crypter will generate test.txt.crypted and test.txt.crypted.key files. test.txt.crypted.key - keyfile for uncrypting!
 
+Password needed only for strong keyfile generation! 
+
 Keep keyfiles protect!
 
 ## Uncrypting file
