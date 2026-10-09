@@ -12,7 +12,7 @@ sub new {
 	
 	my $self = bless {}, $class;
 	
-	$self->srand($seed);
+	$self->srand(abs $seed);
 	
 	return $self;
 }
