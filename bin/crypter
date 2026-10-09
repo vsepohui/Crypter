@@ -142,6 +142,8 @@ Usage: crypter [OPTIONS] [INPUT] [OUTPUT] [-] [-]
        crypter -p password input.txt output.txt
        crypter -p password -d -
        crypter -d -p password crypted.txt
+       crypter -g
+       crypter -n
 	
 Options:
     -p, --password      Password
