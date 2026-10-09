@@ -133,7 +133,7 @@ if ($uncrypt) {
 }
 
 sub usage {
-	say <<__EOF__;
+	print <<__EOF__;
 Usage: crypter [OPTIONS] [INPUT] [OUTPUT] [-] [-]
 
 	crypter -p password input.txt output.txt
