@@ -19,6 +19,8 @@ sub new {
 	my $self  = {
 		%opts,
 	};
+	
+	$| = 1;
 
 	return bless $self, $class;
 }
