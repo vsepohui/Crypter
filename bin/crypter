@@ -25,7 +25,10 @@ if ($args{pwdgen}) {
 
 my $uncrypt = $args{d};
 my $salt = $args{salt};
-say $usage and exit if !$salt && !$uncrypt;
+unless ($salt) {
+	my $rand = new Strong::Random;
+	$salt = join'', map +(0..9,'a'..'z','A'..'Z')[$rand->rand(10+26*2)], 1..64;
+}
 my $file = $args{input} // $ARGV[-1] // '';
 my $output = $args{output};
 say $usage and exit  if !$output && !$uncrypt;
