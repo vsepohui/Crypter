@@ -70,5 +70,3 @@ crypter --pwdgen
 ```
 crypter --noise
 ```
-
-
