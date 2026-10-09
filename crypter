@@ -21,6 +21,8 @@ say $usage and exit  if !$output && !$uncrypt;
 if ($uncrypt) {
 	$file = $uncrypt;
 	
+	$stdin = 1 if !$output;
+	
 	die "Not input file $file" unless -f $file;
 	die "No keyfile " . $file . '.key' unless -f $file . '.key';
 
