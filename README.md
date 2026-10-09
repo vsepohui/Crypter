@@ -2,7 +2,7 @@ Crypter: new kind of cryptography!
 
 # Dependencies
 
-## Stron::Random
+## Strong::Random
 
 Install from https://github.com/vsepohui/Strong-Random
 
