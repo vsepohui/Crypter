@@ -17,7 +17,7 @@ my $stdout;
 my $file = $args{input} // $ARGV[-1] // '';
 my $output = $args{output};
 
-if (-f $ARGV[-2] && !$args{input} && !$output) {
+if ($ARGV[-2] && -f $ARGV[-2] && !$args{input} && !$output) {
 	$file = $ARGV[-2];
 	$output = $ARGV[-1];
 }
