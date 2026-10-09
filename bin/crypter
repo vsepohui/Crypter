@@ -9,7 +9,7 @@ use Crypter;
 use FindBin qw($Bin);
 use lib "$Bin/../lib/";
 
-
+$SIG{__WARN__} = sub {}; # He-he..
 
 my $usage = "Usage:\n\tcrypter [--help|-h] [--pwdgen] [--noise] [--input|-i=inputfile] [--obfuscate=100] [--password|-p=...] [-d crypted_file] [--output|-o=outputfile] [--salt|-s=random_string_for_crypter] [input] [-] [-]";
 my %args = process_command_line(qw/i|input=s obfuscate=s pwdgen noise d=s o|output=s s|salt=s p|password=s h|help/, $usage);
