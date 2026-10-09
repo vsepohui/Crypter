@@ -48,6 +48,16 @@ Same command-line option need for decrypring!
 crypter -d --obfuscate=100 -i ...
 ```
 
+## Crypring by a password (UNSECURE!)
+
+```
+crypter --password=... -i .. -o ..
+```
+
+```
+crypter -d --password=... -i .. -o ..
+```
+
 
 ## Password Genrator
 
