@@ -9,8 +9,7 @@ use Crypter;
 use FindBin qw($Bin);
 use lib "$Bin/../lib/";
 
-my $usage = "Usage:\n\tcrypter [--help|-h] [--pwdgen] [--noise] [--input|-i=inputfile] [--obfuscate=100] [--password|-p=...] [-d crypted_file] [--output|-o=outputfile] [--salt|-s=random_string_for_crypter] [input] [-] [-]";
-my %args = process_command_line(qw/i|input=s obfuscate=s pwdgen noise d=s o|output=s s|salt=s p|password=s h|help/, $usage);
+my %args = process_command_line(qw/i|input=s obfuscate=s pwdgen noise d=s o|output=s s|salt=s p|password=s h|help/);
 
 my $stdin = ($ARGV[-1] // '') eq '-';
 my $stdout;
@@ -46,7 +45,7 @@ unless ($salt) {
 	$salt = join'', map +(0..9,'a'..'z','A'..'Z')[$rand->rand(10+26*2)], 1..64;
 }
 
-say $usage and exit  if !$stdout && !$output && !$uncrypt;
+usage() if !$stdout && !$output && !$uncrypt;
 
 if ($uncrypt) {
 	$file = $uncrypt;
@@ -133,11 +132,30 @@ if ($uncrypt) {
 	}
 }
 
+sub usage {
+	say <<__EOF__;
+Usage: crypter [OPTIONS] [INPUT] [OUTPUT] [-] [-]
+
+	crypter -p password input.txt output.txt
+	crypter -p password -d -
+	
+Options:
+	-p, --password		Password
+	-i, --input			Input file, or STDIN
+	-o, --output		Output file, or STDOUT
+	-d					Uncrypt file
+	-s,	--salt			Salt for generation random
+	--noise				Noise Generator
+	--pwdgen			Password Generator
+	-h, --help			Help
+__EOF__
+
+	exit;
+}
 
 
 # Usefull util for parsing command-line
 sub process_command_line {
-	my $usage = pop; # Get last param, it's Usage text
 	my @opts  = @_;  # Get params
 	
 	# Prepare from GetOptions syntax option to key-names
@@ -152,7 +170,7 @@ sub process_command_line {
 	GetOptions(map {$_ => \$args{$prepare->($_)}} @opts);
 	
 	# Show usage, it catchet --help command-line param
-	say $usage and exit() if $args{help};
+	usage() if $args{help};
 	
 	return %args;
 }
