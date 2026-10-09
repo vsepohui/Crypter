@@ -76,7 +76,7 @@ echo 'Hello World!' | crypter -p 123456 --obfuscate=10 | crypter -p 123456 --obf
 crypter --pwdgen
 ```
 
-## Noise Genrator
+## Noise Generator
 
 ```
 crypter --noise
