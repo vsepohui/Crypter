@@ -17,6 +17,11 @@ my $stdout;
 my $file = $args{input} // $ARGV[-1] // '';
 my $output = $args{output};
 
+if (-f $ARGV[-2] && !$args{input} && !$output) {
+	$file = $ARGV[-2];
+	$output = $ARGV[-1];
+}
+
 if ($args{password}) {
 	$stdout = ($ARGV[-1] // '') eq '-' || !$output;
 	$stdin = ($ARGV[-2] // '') eq '-'|| !$file;
