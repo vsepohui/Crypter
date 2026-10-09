@@ -87,12 +87,14 @@ sub _init_random_by_password {
 }
 
 sub crypt {
-	my $self = shift;
+	my $self = @_ % 2 ? shift : undef;
 	my %opts = (
 		input	 	=> undef,
 		output	 	=> undef,
 		@_,
 	);
+	
+	$self = __PACKAGE__->new(%opts) unless ref $self;
 	
 	my $password	= $self->{password};
 	my $salt   		= $self->{salt};
@@ -164,13 +166,16 @@ sub crypt {
 
 
 sub uncrypt {
-	my $self = shift;
+	my $self = @_ % 2 ? shift : undef;
 	my %opts = (
 		input	 	=> undef,
 		output	 	=> undef,
 		keys		=> undef,
 		@_,
 	);
+	
+	$self = __PACKAGE__->new(%opts) unless ref $self;
+	
 	my $password	= $self->{password};
 	my $input  		= $opts{input};
 	my $output 		= $opts{output};
