@@ -81,3 +81,9 @@ crypter --pwdgen
 ```
 crypter --noise
 ```
+
+# Credits
+
+Crypter coded by Ivan Trunaev, Russia, Uray.
+
+Based of XOR-algorithm and Black-Noise Generator Strong::Random, developed by Ivan Trunaev.
