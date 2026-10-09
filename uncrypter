@@ -10,8 +10,8 @@ exit;
 
 
 sub main {
-	my $usage = "Usage:\n\t$0 [--help|-h] [--input|-i=inputfile] [--output|-o=outputfile]";
-	my %args = process_command_line(qw/i|input=s o|output=s p|password=random_strin_for_crypter h|help/, $usage);
+	my $usage = "Usage:\n\t$0 [--help|-h] [--input|-i=inputfile] [--output|-o=outputfile] [--password|-p=random_string_for_crypter]";
+	my %args = process_command_line(qw/i|input=s o|output=s p|password=s h|help/, $usage);
 	
 	
 	my $password = $args{password} or die say $usage;
