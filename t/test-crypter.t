@@ -7,14 +7,10 @@ use File::Temp qw(tempfile);
 use FindBin qw($Bin);
 use Test::Simple tests => 1;
 
-use Strong::Random;
-
 ok (test_crypted(), 'Test crypter success!');
 
 sub test_crypted {
-	my $rand = new Strong::Random;
-
-	my $salt = join'', map +(0..9,'a'..'z','A'..'Z')[$rand->rand(10+26*2)], 1..32;
+	my $salt = `$Bin/../bin/crypter --pwdgen`;
 
 	my (undef, $filename) = tempfile();
 
