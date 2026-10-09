@@ -12,7 +12,7 @@ Crypter will generate test.txt.crypted and test.txt.crypted.key files. test.txt.
 
 Slat needed only for strong keyfile generation! 
 
-Don't use salt more longer than encrtyped information, it's unnedable!
+Don't use salt more longer than encrtyped information, it's unneeded!
 
 Keep keyfiles protect!
 
