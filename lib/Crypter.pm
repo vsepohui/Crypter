@@ -20,8 +20,6 @@ sub new {
 		%opts,
 	};
 	
-	$| = 1;
-
 	return bless $self, $class;
 }
 
@@ -129,6 +127,8 @@ sub crypt {
 	}
 	
 	$self->{n} = 0;	
+	
+	local $| = 1;
 
 	if (ref $input eq 'GLOB') {
 		while (my $str = <$input>) {
@@ -203,6 +203,8 @@ sub uncrypt {
 	}
 	
 	$self->{n} = 0;
+	
+	local $| = 1;
 	
 	if (ref $input eq 'GLOB') {
 		while (my $str = <$input>) {
