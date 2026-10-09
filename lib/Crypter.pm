@@ -62,9 +62,9 @@ sub _init_random_by_password {
 	my $password = $self->{password};
 	my @random = ();
 	
-	for (1..ceil(length($password)/16)) {
-		my $p = substr($self->{password}, 16*$_-16, 16);
-		$p .= ' 'x (16 - length $p) if (length $p < 16);
+	for (1..ceil(length($password)/4)) {
+		my $p = substr($self->{password}, 4*$_-4, 4);
+		$p .= ' 'x (4 - length $p) if (length $p < 4);
 		
 		my $x = sprintf("%.22f", unpack('f', $p));
 		$x = 1 / $x;
