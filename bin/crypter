@@ -4,10 +4,10 @@ use 5.022;
 use warnings;
 
 use Getopt::Long qw(GetOptions);
+use POSIX qw(ceil);
 
-
-my $usage = "Usage:\n\tcrypter [--help|-h] [--pwdgen] [--noise] [--input|-i=inputfile] [--obfuscate=100] [-d crypted_file] [--output|-o=outputfile] [--salt|-s=random_string_for_crypter] [input] [-]";
-my %args = process_command_line(qw/i|input=s obfuscate=s pwdgen noise d=s o|output=s s|salt=s h|help/, $usage);
+my $usage = "Usage:\n\tcrypter [--help|-h] [--pwdgen] [--noise] [--input|-i=inputfile] [--obfuscate=100] [--password|-p=...] [-d crypted_file] [--output|-o=outputfile] [--salt|-s=random_string_for_crypter] [input] [-]";
+my %args = process_command_line(qw/i|input=s obfuscate=s pwdgen noise d=s o|output=s s|salt=s p|password=s h|help/, $usage);
 my $stdin = ($ARGV[-1] // '') eq '-';
 
 if ($args{pwdgen}) {
@@ -26,6 +26,7 @@ if ($args{pwdgen}) {
 my $uncrypt = $args{d};
 my $salt = $args{salt};
 my $obfuscate = $args{obfuscate};
+my $password = $args{password};
 
 unless ($salt) {
 	my $rand = new Strong::Random;
@@ -41,7 +42,7 @@ if ($uncrypt) {
 	$stdin = 1 if !$output;
 	
 	die "Not input file $file" unless -f $file;
-	die "No keyfile " . $file . '.key' unless -f $file . '.key';
+	die "No keyfile " . $file . '.key' if !$password && !-f $file . '.key';
 
 	my $input = '';
 
@@ -51,21 +52,42 @@ if ($uncrypt) {
 	close $fh;
 	
 	my @random;
-	if ($key =~ /x/) {
-		for (split /\s+/, $key) {
-			my ($a, $b) = split /x/, $_;
-			my $seed = hex ($a) . '.' . hex ($b);
+	if ($password) {
+		for (1..ceil(length($password)/16)) {
+			my $p = substr($salt, 16*$_-16, 16);
+			$p .= ' ' x 16 - length $p if (length $p < 16);
+			
+			my $x = sprintf("%.22f", unpack('f', $p));
+			$x = 1 / $x;
+			
+
+			my $rnd = new Strong::Random($x);
+			$rnd->rand();
+			
+			my $seed = sprintf("%.8f", $rnd->{seed});
+			
 			push @random, {
-				generator 	=> new Strong::Random($seed), 
-				seed 		=> $seed, 
+				generator 	=> new Strong::Random($seed),
+				seed		=> $seed,
 			};
 		}
-	} else {
-		# Support old format of keyfile
-		@random = map {{
-			generator 	=> new Strong::Random($_), 
-			seed 		=> $_ 
-		}} split /,/, $key;
+	} else {	
+		if ($key =~ /x/) {
+			for (split /\s+/, $key) {
+				my ($a, $b) = split /x/, $_;
+				my $seed = hex ($a) . '.' . hex ($b);
+				push @random, {
+					generator 	=> new Strong::Random($seed), 
+					seed 		=> $seed, 
+				};
+			}
+		} else {
+			# Support old format of keyfile
+			@random = map {{
+				generator 	=> new Strong::Random($_), 
+				seed 		=> $_ 
+			}} split /,/, $key;
+		}
 	}
 
 
@@ -128,23 +150,43 @@ if ($uncrypt) {
 
 	# Init randomerz
 	my @random;
-	my $strong = $args{strong} || 256;
-	for (1..int(length($salt)/2+.5)) {
-		my $rnd = new Strong::Random;
-		$rnd->rand();
-		
-		my $p = substr($salt, 2*$_-2, 2);
-		$p .= ' ' if (length $p == 1);
-		
-		my $x = join '', map {ord} split //, $p;
-		
-		for (1..$x) {$rnd->rand()}
-		
-		my $seed = sprintf("%.8f", $rnd->{seed});
-		push @random, {
-			generator 	=> new Strong::Random($seed),
-			seed		=> $seed,
-		};
+	if (defined $password) {
+		for (1..ceil(length($password)/16)) {
+			my $p = substr($salt, 16*$_-16, 16);
+			$p .= ' ' x 16 - length $p if (length $p < 16);
+			
+			my $x = sprintf("%.22f", unpack('f', $p));
+			$x = 1 / $x;
+			
+
+			my $rnd = new Strong::Random($x);
+			$rnd->rand();
+			
+			my $seed = sprintf("%.8f", $rnd->{seed});
+			
+			push @random, {
+				generator 	=> new Strong::Random($seed),
+				seed		=> $seed,
+			};
+		}
+	} else {
+		for (1..ceil(length($salt)/2+.5)) {
+			my $rnd = new Strong::Random;
+			$rnd->rand();
+			
+			my $p = substr($salt, 2*$_-2, 2);
+			$p .= ' ' if (length $p == 1);
+			
+			my $x = join '', map {ord} split //, $p;
+			
+			for (1..$x) {$rnd->rand()}
+			
+			my $seed = sprintf("%.8f", $rnd->{seed});
+			push @random, {
+				generator 	=> new Strong::Random($seed),
+				seed		=> $seed,
+			};
+		}
 	}
 
 	my $input = '';
@@ -198,16 +240,18 @@ if ($uncrypt) {
 
 	close $fo;
 
-	my $fh;
-	open $fh, '>', $output .'.key';
-	my @out;
-	for (map {$_->{seed}} @random) {
-		my ($a, $b) = split /\./;
-		push @out, sprintf("%Xx%X", $a, $b);
-		
+	unless (defined $password) {
+		my $fh;
+		open $fh, '>', $output .'.key';
+		my @out;
+		for (map {$_->{seed}} @random) {
+			my ($a, $b) = split /\./;
+			push @out, sprintf("%Xx%X", $a, $b);
+			
+		}
+		say $fh join ' ', @out;
+		close $fh;
 	}
-	say $fh join ' ', @out;
-	close $fh;
 }
 
 
