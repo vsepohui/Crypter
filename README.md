@@ -31,4 +31,10 @@ Put encryptedfile file and keyfile in same folder, and run uncrypter:
 ./crypter -d test.txt.crypted
 ```
 
+## Password Genrator
+
+```
+./crypter --pwdgen
+```
+
 

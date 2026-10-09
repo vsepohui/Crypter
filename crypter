@@ -7,9 +7,16 @@ use Strong::Random;
 use Getopt::Long qw(GetOptions);
 
 
-my $usage = "Usage:\n\t$0 [--help|-h] [--input|-i=inputfile] [-d crypted_file] [--output|-o=outputfile] [--salt|-s=random_string_for_crypter] [input] [-]";
-my %args = process_command_line(qw/i|input=s d=s o|output=s s|salt=s h|help/, $usage);
+my $usage = "Usage:\n\t$0 [--help|-h] [--pwdgen] [--input|-i=inputfile] [-d crypted_file] [--output|-o=outputfile] [--salt|-s=random_string_for_crypter] [input] [-]";
+my %args = process_command_line(qw/i|input=s pwdgen d=s o|output=s s|salt=s h|help/, $usage);
 my $stdin = ($ARGV[-1] // '') eq '-';
+
+if ($args{pwdgen}) {
+	my $rand = new Strong::Random;
+	my $pwd = join'', map +(0..9,'a'..'z','A'..'Z')[$rand->rand(10+26*2)], 1..64;
+	say $pwd;
+	exit;
+}
 
 my $uncrypt = $args{d};
 my $salt = $args{salt};
