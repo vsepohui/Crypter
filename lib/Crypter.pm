@@ -69,7 +69,7 @@ sub _init_random_by_password {
 		$p .= ' 'x (4 - length $p) if (length $p < 4);
 		
 
-		my $x = sprintf("%.40f", unpack('f', $p));
+		my $x = sprintf("%.49f", unpack('f', $p));
 		$x = $x ? 1 / $x : 0;
 
 		my $rnd = new Strong::Random($x);
