@@ -4,7 +4,12 @@ use 5.022;
 use warnings;
 
 use Getopt::Long qw(GetOptions);
-use POSIX qw(ceil);
+use Crypter;
+
+use FindBin qw($Bin);
+use lib "$Bin/../lib/";
+
+
 
 my $usage = "Usage:\n\tcrypter [--help|-h] [--pwdgen] [--noise] [--input|-i=inputfile] [--obfuscate=100] [--password|-p=...] [-d crypted_file] [--output|-o=outputfile] [--salt|-s=random_string_for_crypter] [input] [-]";
 my %args = process_command_line(qw/i|input=s obfuscate=s pwdgen noise d=s o|output=s s|salt=s p|password=s h|help/, $usage);
@@ -45,55 +50,16 @@ if ($uncrypt) {
 	die "No keyfile " . $file . '.key' if !$password && !-f $file . '.key';
 
 	my $input = '';
-
-	my $fh;
-	open $fh, $file . '.key';
-	my $key = join '', <$fh>;
-	close $fh;
 	
-	my @random;
-	if ($password) {
-		for (1..ceil(length($password)/16)) {
-			my $p = substr($salt, 16*$_-16, 16);
-			$p .= ' ' x 16 - length $p if (length $p < 16);
-			
-			my $x = sprintf("%.22f", unpack('f', $p));
-			$x = 1 / $x;
-			
-
-			my $rnd = new Strong::Random($x);
-			$rnd->rand();
-			
-			$rnd->rand for 1..unpack('s', $p) % 256;
-			
-			my $seed = sprintf("%.8f", $rnd->{seed});
-			
-			push @random, {
-				generator 	=> new Strong::Random($seed),
-				seed		=> $seed,
-			};
-		}
-	} else {	
-		if ($key =~ /x/) {
-			for (split /\s+/, $key) {
-				my ($a, $b) = split /x/, $_;
-				my $seed = hex ($a) . '.' . hex ($b);
-				push @random, {
-					generator 	=> new Strong::Random($seed), 
-					seed 		=> $seed, 
-				};
-			}
-		} else {
-			# Support old format of keyfile
-			@random = map {{
-				generator 	=> new Strong::Random($_), 
-				seed 		=> $_ 
-			}} split /,/, $key;
-		}
+	my $key;
+	
+	unless ($password) {
+		my $fh;
+		open $fh, $file . '.key';
+		my $key = join '', <$fh>;
+		close $fh;
 	}
-
-
-
+	
 	my $fo;
 	if (!$stdin) {
 		open $fo, '>', $output;
@@ -102,46 +68,17 @@ if ($uncrypt) {
 	}
 	binmode $fo;
 
+	my $fh;
 	open $fh, $file;
 	binmode $fh;
+	
+	my $crypter = new Crypter(
+		password 	=> $password, 
+		obfuscate	=> $obfuscate,
+	);
+	
+	$crypter->uncrypt(input => $fh, output => $fo, keys => $key);
 
-	my $n = 0;
-	while (my $str = <$fh>) {
-		my @input = split //, $str;
-		my $out = '';
-		for (my $i = 0 ; $i < scalar @input ; $i ++) {
-			my $chr = $input[$i];
-			my $ord = ord $chr;
-			
-			
-			my $r = $random[$n];
-			$n = 0 if (++$n >= scalar @random);
-
-			if ($obfuscate) {
-				my $nr = $r->{generator}->rand($obfuscate);
-				for (1..$nr) {
-					$r->{generator}->rand(256);
-					$i ++;
-					if ($i >= scalar @input) {
-						$str = <$fh>;
-						push @input, split //, $str;
-					}
-				}
-				
-				$chr = $input[$i];
-				
-				$ord = ord $chr;
-			}
-			
-			my $s = $r->{generator}->rand(256);
-			
-			my $ord2 = $ord ^ $s;
-			
-			$out .= chr $ord2;
-		}
-		print $fo $out;
-	}
-	close $fh;
 
 	if (!$stdin) {
 		close $fo;
@@ -150,53 +87,6 @@ if ($uncrypt) {
 } else {
 	die "Not input file $file" if !$stdin && !-f $file;
 
-	# Init randomerz
-	my @random;
-	if (defined $password) {
-		for (1..ceil(length($password)/16)) {
-			my $p = substr($salt, 16*$_-16, 16);
-			$p .= ' ' x 16 - length $p if (length $p < 16);
-			
-			my $x = sprintf("%.22f", unpack('f', $p));
-			$x = 1 / $x;
-			
-
-			my $rnd = new Strong::Random($x);
-			$rnd->rand();
-			
-			$rnd->rand for 1..unpack('s', $p) % 256;
-			
-			my $seed = sprintf("%.8f", $rnd->{seed});
-			
-			push @random, {
-				generator 	=> new Strong::Random($seed),
-				seed		=> $seed,
-			};
-		}
-	} else {
-		for (1..ceil(length($salt)/2+.5)) {
-			my $rnd = new Strong::Random;
-			$rnd->rand();
-			
-			my $p = substr($salt, 2*$_-2, 2);
-			$p .= ' ' if (length $p == 1);
-			
-			my $x = join '', map {ord} split //, $p;
-			
-			for (1..$x) {$rnd->rand()}
-			
-			my $seed = sprintf("%.8f", $rnd->{seed});
-			push @random, {
-				generator 	=> new Strong::Random($seed),
-				seed		=> $seed,
-			};
-		}
-	}
-
-	my $input = '';
-
-	my $n = 0;
-
 	my $fo;
 	open $fo, '>', $output;
 	binmode $fo;
@@ -204,56 +94,25 @@ if ($uncrypt) {
 	my $fi;
 	if (!$stdin) {
 		open $fi, $file;
-		binmode $fi;
 	} else {
 		binmode STDIN;
-		$fi = \*STDIN;
 	}
+	binmode $fi;
+	
+	my $crypter = new Crypter(
+		password 	=> $password, 
+		salt 		=> $salt, 
+		obfuscate 	=> $obfuscate,
+	);
+	my $keys = $crypter->crypt(input => $fi, output => $fo);
 
-	while (my $str = <$fi>) {
-		my @input = split //, $str;
-
-		my $out = '';
-		for (my $i = 0 ; $i < scalar @input ; $i ++) {
-			my $chr = $input[$i];
-			my $ord = ord $chr;
-			
-			my $r = $random[$n];
-			$n = 0 if (++$n >= scalar @random);
-			
-			if ($obfuscate) {
-				my $nr = $r->{generator}->rand($obfuscate);
-				for (1..$nr) {
-					$out .= chr $r->{generator}->rand(256);
-				}
-			}
-			
-			my $s = $r->{generator}->rand(256);
-			
-			my $ord2 = $ord ^ $s;
-			
-			$out .= chr $ord2;
-		}
-		
-		print $fo $out;
-	}
-
-	if (!$stdin) {
-		close $fi;
-	}
-
+	close $fi unless !$stdin;
 	close $fo;
 
 	unless (defined $password) {
 		my $fh;
 		open $fh, '>', $output .'.key';
-		my @out;
-		for (map {$_->{seed}} @random) {
-			my ($a, $b) = split /\./;
-			push @out, sprintf("%Xx%X", $a, $b);
-			
-		}
-		say $fh join ' ', @out;
+		say $fh $keys;
 		close $fh;
 	}
 }
@@ -282,72 +141,4 @@ sub process_command_line {
 	return %args;
 }
 
-package Strong::Random;
-
-use 5.022;
-use warnings;
-
-use Time::HiRes;
-
-
-sub new {
-	my $class = shift;
-	my $seed  = shift;
-	
-	my $self = {
-		seed => $seed // $class->_shuffle_seed(),
-	};
-	
-	return bless $self, $class;
-}
-
-
-sub _shuffle_seed {
-	my $class = shift;
-	my $n = (join '.', reverse Time::HiRes::gettimeofday) . $$;
-	
-	$n =~ s/\.//;
-	$n = substr($n, 0, -12);
-	$n = '0.'.$n;
-
-	return 1 / $n;
-}
-
-sub _harmonic {
-	my $self = shift;
-	my $x = $self->{seed};
-	
-	state $half_freq = 2/7.0;
-
-	my $step = int ($x / $half_freq);
-	$x -= $step * $half_freq;
-
-	return ($step % 2 ? -1 : 1)*sqrt (1 - $x*$x);
-}
-
-sub srand {
-	my $self = shift;
-	my $seed = shift // $self->_shuffle_seed();
-	$self->{seed} = $seed;
-}
-
-sub rand {
-	my $self = shift;
-	my $num = shift;
-	
-	my $r = ($self->_harmonic()+1)/2.0;
-	$self->{seed} *= $r+1.5;
-	$self->{seed} /= 2 if ($self->{seed} >= 100000000);
-
-	my $s = $r;
-	$s =~ s/\.//;
-	$r *= substr($s, -5, -1) || 0;
-	$r = substr($r, 0, 22);
-	$r =~ s/\.//;
-	$r = '0.'.$r;
-
-	return $num ? int $num * $r : $r;
-}
-
 1;
-
