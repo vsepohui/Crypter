@@ -221,11 +221,14 @@ sub uncrypt {
 						$i ++;
 						if ($i >= scalar @input) {
 							$str = <$input>;
+							die "Crypt Error" unless defined $str;
 							push @input, split //, $str;
 						}
 					}
 					
+					die "Crypt Error" unless defined $input[$i];
 					$chr = $input[$i];
+				
 					
 					$ord = ord $chr;
 				}
