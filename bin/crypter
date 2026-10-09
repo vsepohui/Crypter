@@ -154,6 +154,8 @@ Options:
     -g, --pwdgen        Password Generator
     -n, --noise         Noise Generator
     -h, --help          Help
+
+Crypter developed by Ivan Trunaev, Russia, 2026  
 __EOF__
 
 	exit;
