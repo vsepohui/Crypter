@@ -5,7 +5,7 @@ Crypter: new kind of cryptography!
 ## Encryct file
 
 ```
-./crypter --salt=Stron_Slat_Like_Next__LqEI96iqFeOvaBgzxc3wr23r3rrarM8ic7mp --input=test.txt --output=test.txt.crypted
+./crypter --salt=Strong_Slat_Like_Next__LqEI96iqFeOvaBgzxc3wr23r3rrarM8ic7mp --input=test.txt --output=test.txt.crypted
 ```
 
 Crypter will generate test.txt.crypted and test.txt.crypted.key files. test.txt.crypted.key - keyfile for uncrypting!
