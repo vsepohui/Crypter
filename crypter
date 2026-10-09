@@ -7,7 +7,7 @@ use Strong::Random;
 use Getopt::Long qw(GetOptions);
 
 
-my $usage = "Usage:\n\t$0 [--help|-h] [--input|-i=inputfile] [-d crypted_file] [--output|-o=outputfile] [--slat|-s=random_string_for_crypter] [input] [-]";
+my $usage = "Usage:\n\t$0 [--help|-h] [--input|-i=inputfile] [-d crypted_file] [--output|-o=outputfile] [--salt|-s=random_string_for_crypter] [input] [-]";
 my %args = process_command_line(qw/i|input=s d=s o|output=s s|salt=s h|help/, $usage);
 my $stdin = ($ARGV[-1] // '') eq '-';
 
