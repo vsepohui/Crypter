@@ -10,11 +10,11 @@ sub new {
 	my $class = shift;
 	my $seed  = shift;
 	
-	my $self = {
-		seed => $seed // $class->_shuffle_seed(),
-	};
+	my $self = bless {}, $class;
 	
-	return bless $self, $class;
+	$self->srand($seed);
+	
+	return $self;
 }
 
 
@@ -38,6 +38,11 @@ sub _harmonic {
 sub srand {
 	my $self = shift;
 	my $seed = shift // $self->_shuffle_seed();
+	
+	while ($seed >= 100000000) {
+		$seed /= 2;
+	}
+	
 	$self->{seed} = $seed;
 }
 
