@@ -10,11 +10,11 @@ exit;
 
 
 sub main {
-	my $usage = "Usage:\n\t$0 [--help|-h] [--input|-i=inputfile] [--output|-o=outputfile] [--password|-p=random_string_for_crypter]";
-	my %args = process_command_line(qw/i|input=s o|output=s p|password=s h|help/, $usage);
+	my $usage = "Usage:\n\t$0 [--help|-h] [--input|-i=inputfile] [--output|-o=outputfile] [--slat|-s=random_string_for_crypter]";
+	my %args = process_command_line(qw/i|input=s o|output=s s|salt=s h|help/, $usage);
 	
 	
-	my $password = $args{password} or say $usage and exit;
+	my $slat = $args{slat} or say $usage and exit;
 	my $file = $args{input} or say $usage and exit;
 	my $output = $args{output} or say $usage and exit;
 
@@ -29,11 +29,11 @@ sub main {
 	my @random;
 	
 	my $strong = $args{strong} || 256;
-	for (1..int(length($password)/2+.5)) {
+	for (1..int(length($slat)/2+.5)) {
 		my $rnd = new Random;
 		$rnd->rand();
 		
-		my $p = substr($password, 2*$_-2, 2);
+		my $p = substr($slat, 2*$_-2, 2);
 		$p .= ' ' if (length $p == 1);
 		
 		my $x = join '', map {ord} split //, $p;

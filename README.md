@@ -5,12 +5,12 @@ Crypter - new kind of cryptography!
 ## Encryct file
 
 ```
-./crypter --password=LqEI96iqFeOvaBgzxc3wr23r3rrarM8ic7mp --input=test.txt --output=test.txt.crypted
+./crypter --salt=LqEI96iqFeOvaBgzxc3wr23r3rrarM8ic7mp --input=test.txt --output=test.txt.crypted
 ```
 
 Crypter will generate test.txt.crypted and test.txt.crypted.key files. test.txt.crypted.key - keyfile for uncrypting!
 
-Password needed only for strong keyfile generation! 
+Slat needed only for strong keyfile generation! 
 
 Keep keyfiles protect!
 
