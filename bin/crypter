@@ -147,7 +147,7 @@ Options:
     -p, --password      Password
     -i, --input         Input file, or STDIN
     -o, --output        Output file, or STDOUT
-    -d                  Uncrypt file
+    -d                  Uncrypt file flag
     -s, --salt          Salt for generation random
     --noise             Noise Generator
     --pwdgen            Password Generator
