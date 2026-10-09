@@ -1,18 +1,20 @@
 Crypter: new kind of cryptography!
 
-# Dependencies
 
-## Strong::Random
+# Installation
 
-Install from https://github.com/vsepohui/Strong-Random
-
+```
+perl Makefile.pl
+make && make test
+sudo make install
+```
 
 # Using Crypter
 
 ## Encryct file
 
 ```
-./crypter --salt=Strong_Slat_Like_Next__LqEI96iqFeOvaBgzxc3wr23r3rrarM8ic7mp --input=test.txt --output=test.txt.crypted
+crypter --salt=Strong_Slat_Like_Next__LqEI96iqFeOvaBgzxc3wr23r3rrarM8ic7mp --input=test.txt --output=test.txt.crypted
 ```
 
 Crypter will generate test.txt.crypted and test.txt.crypted.key files. test.txt.crypted.key - keyfile for uncrypting!
@@ -28,19 +30,19 @@ Keep keyfiles protect!
 Put encryptedfile file and keyfile in same folder, and run uncrypter:
 
 ```
-./crypter -d test.txt.crypted
+crypter -d test.txt.crypted
 ```
 
 ## Password Genrator
 
 ```
-./crypter --pwdgen
+crypter --pwdgen
 ```
 
 ## Noise Genrator
 
 ```
-./crypter --noise
+crypter --noise
 ```
 
 

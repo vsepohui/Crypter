@@ -19,8 +19,8 @@ sub test_crypted {
 	my (undef, $filename) = tempfile();
 
 	`cat /dev/random|head -n 10000 > $filename`;
-	`$Bin/../crypter -i $filename -o $filename.crypted -s $salt`;
-	`$Bin/../crypter -d $filename.crypted -o $filename.uncrypted`;
+	`$Bin/../bin/crypter -i $filename -o $filename.crypted -s $salt`;
+	`$Bin/../bin/crypter -d $filename.crypted -o $filename.uncrypted`;
 	my $diff = `diff $filename $filename.uncrypted`;
 
 	unlink $filename;
