@@ -48,7 +48,7 @@ Same command-line option need for decrypring!
 crypter -d --obfuscate=100 -i ...
 ```
 
-## Crypring by a password
+## Crypting by a password
 
 USE STRONG PASSWORDS ONLY!
 
