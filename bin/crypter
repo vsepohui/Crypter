@@ -136,18 +136,18 @@ sub usage {
 	print <<__EOF__;
 Usage: crypter [OPTIONS] [INPUT] [OUTPUT] [-] [-]
 
-	crypter -p password input.txt output.txt
-	crypter -p password -d -
+       crypter -p password input.txt output.txt
+       crypter -p password -d -
 	
 Options:
-	-p, --password		Password
-	-i, --input			Input file, or STDIN
-	-o, --output		Output file, or STDOUT
-	-d					Uncrypt file
-	-s,	--salt			Salt for generation random
-	--noise				Noise Generator
-	--pwdgen			Password Generator
-	-h, --help			Help
+    -p, --password      Password
+    -i, --input         Input file, or STDIN
+    -o, --output        Output file, or STDOUT
+    -d                  Uncrypt file
+    -s, --salt          Salt for generation random
+    --noise             Noise Generator
+    --pwdgen            Password Generator
+    -h, --help          Help
 __EOF__
 
 	exit;
