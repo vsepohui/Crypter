@@ -46,11 +46,13 @@ sub _crypt_string {
 			}
 		}
 		
-		my $s = $r->{generator}->rand(256);
 		
-		my $ord2 = $ord ^ $s;
+		for my $r (@{$self->{random}}) {
+			my $s = $r->{generator}->rand(256);
+			$ord ^= $s;
+		}
 		
-		$out .= chr $ord2;
+		$out .= chr $ord;
 	}
 	
 	return $out;
@@ -233,11 +235,12 @@ sub uncrypt {
 					$ord = ord $chr;
 				}
 				
-				my $s = $r->{generator}->rand(256);
+				for my $r (@{$self->{random}}) {
+					my $s = $r->{generator}->rand(256);
+					$ord ^= $s;
+				}
 				
-				my $ord2 = $ord ^ $s;
-				
-				$out .= chr $ord2;
+				$out .= chr $ord;
 			}
 			if (ref $output eq 'GLOB') {
 				print $output $out;
@@ -268,11 +271,12 @@ sub uncrypt {
 				$ord = ord $chr;
 			}
 			
-			my $s = $r->{generator}->rand(256);
+			for my $r (@{$self->{random}}) {
+				my $s = $r->{generator}->rand(256);
+				$ord ^= $s;
+			}
 			
-			my $ord2 = $ord ^ $s;
-			
-			$out .= chr $ord2;
+			$out .= chr $ord;
 		}
 		if (ref $output eq 'GLOB') {
 			print $output $out;
