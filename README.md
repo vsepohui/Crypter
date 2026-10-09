@@ -66,7 +66,7 @@ USE STRONG PASSWORDS ONLY!
 
 ```
 echo 'Hello World!' | crypter -p 123456 | crypter -p 123456
-echo 'Hello World!' | crypter -p 123456 --obfuscate=10| crypter -p 123456 --obfuscate=10 -d -
+echo 'Hello World!' | crypter -p 123456 --obfuscate=10 | crypter -p 123456 --obfuscate=10 -d -
 ```
 
 
