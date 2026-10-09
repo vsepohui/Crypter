@@ -58,6 +58,12 @@ crypter --password=... -i .. -o ..
 crypter -d --password=... -i .. -o ..
 ```
 
+## Pipe-line processing (UNSTRONG)
+
+```
+crypter -p 123456 < README.md | crypter -p 123456
+```
+
 
 ## Password Genrator
 
