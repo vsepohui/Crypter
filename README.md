@@ -32,6 +32,22 @@ Put encryptedfile file and keyfile in same folder, and run uncrypter:
 ```
 crypter -d test.txt.crypted
 ```
+## Obfuscate
+
+Crypted possible to add random data before each crypted symbol in file.
+
+```
+crypter --obfuscate=100 -i .. -o ..
+```
+
+Will be add between 0..99 random symbols!
+
+Same command-line option need for decrypring!
+
+```
+crypter -d --obfuscate=100 -i ...
+```
+
 
 ## Password Genrator
 
