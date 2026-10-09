@@ -37,4 +37,10 @@ Put encryptedfile file and keyfile in same folder, and run uncrypter:
 ./crypter --pwdgen
 ```
 
+## Noise Genrator
+
+```
+./crypter --noise
+```
+
 

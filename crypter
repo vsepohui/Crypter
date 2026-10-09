@@ -7,8 +7,8 @@ use Strong::Random;
 use Getopt::Long qw(GetOptions);
 
 
-my $usage = "Usage:\n\t$0 [--help|-h] [--pwdgen] [--input|-i=inputfile] [-d crypted_file] [--output|-o=outputfile] [--salt|-s=random_string_for_crypter] [input] [-]";
-my %args = process_command_line(qw/i|input=s pwdgen d=s o|output=s s|salt=s h|help/, $usage);
+my $usage = "Usage:\n\t$0 [--help|-h] [--pwdgen] [--noise] [--input|-i=inputfile] [-d crypted_file] [--output|-o=outputfile] [--salt|-s=random_string_for_crypter] [input] [-]";
+my %args = process_command_line(qw/i|input=s pwdgen noise d=s o|output=s s|salt=s h|help/, $usage);
 my $stdin = ($ARGV[-1] // '') eq '-';
 
 if ($args{pwdgen}) {
@@ -16,7 +16,13 @@ if ($args{pwdgen}) {
 	my $pwd = join'', map +(0..9,'a'..'z','A'..'Z')[$rand->rand(10+26*2)], 1..64;
 	say $pwd;
 	exit;
+} elsif ($args{noise}) {
+	my $rand = new Strong::Random;
+	while(1) {
+		print chr rand($rand->rand(256));
+	}
 }
+
 
 my $uncrypt = $args{d};
 my $salt = $args{salt};
