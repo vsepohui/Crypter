@@ -49,11 +49,24 @@ if ($uncrypt) {
 	open $fh, $file . '.key';
 	my $key = join '', <$fh>;
 	close $fh;
-
-	my @random = map {{
-		generator 	=> new Strong::Random($_), 
-		seed 		=> $_ 
-	}} split /,/, $key;
+	
+	my @random;
+	if ($key =~ /x/) {
+		for (split /\s+/, $key) {
+			my ($a, $b) = split /x/, $_;
+			my $seed = hex ($a) . '.' . hex ($b);
+			push @random, {
+				generator 	=> new Strong::Random($seed), 
+				seed 		=> $seed, 
+			};
+		}
+	} else {
+		# Support old format of keyfile
+		@random = map {{
+			generator 	=> new Strong::Random($_), 
+			seed 		=> $_ 
+		}} split /,/, $key;
+	}
 
 
 
@@ -187,7 +200,13 @@ if ($uncrypt) {
 
 	my $fh;
 	open $fh, '>', $output .'.key';
-	say $fh join ',', map {$_->{seed}} @random;
+	my @out;
+	for (map {$_->{seed}} @random) {
+		my ($a, $b) = split /\./;
+		push @out, sprintf("%Xx%X", $a, $b);
+		
+	}
+	say $fh join ' ', @out;
 	close $fh;
 }
 
