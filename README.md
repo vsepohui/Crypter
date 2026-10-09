@@ -48,7 +48,9 @@ Same command-line option need for decrypring!
 crypter -d --obfuscate=100 -i ...
 ```
 
-## Crypring by a password (UNSECURE!)
+## Crypring by a password
+
+USE STRONG PASSWORDS ONLY!
 
 ```
 crypter --password=... -i .. -o ..
@@ -58,7 +60,9 @@ crypter --password=... -i .. -o ..
 crypter -d --password=... -i .. -o ..
 ```
 
-## Pipe-line processing (UNSTRONG)
+## Pipe-line processing
+
+USE STRONG PASSWORDS ONLY!
 
 ```
 crypter -p 123456 < README.md | crypter -p 123456
