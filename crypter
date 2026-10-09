@@ -16,7 +16,7 @@ my $salt = $args{salt};
 say $usage and exit if !$salt && !$uncrypt;
 my $file = $args{input} // $ARGV[-1] // '';
 my $output = $args{output};
-say $usage and exit  if !$salt && !$uncrypt;
+say $usage and exit  if !$output && !$uncrypt;
 
 if ($uncrypt) {
 	$file = $uncrypt;
