@@ -14,7 +14,7 @@ Keep keyfiles protect!
 
 ## Uncrypting file
 
-Put encryptedfile file and keyfile in same folder, and run uncrypted:
+Put encryptedfile file and keyfile in same folder, and run uncrypter:
 
 ```
 ./uncrypter --input=test.txt.crypted --output=out.txt
