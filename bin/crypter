@@ -17,9 +17,12 @@ my %args = process_command_line(qw/i|input=s obfuscate=s pwdgen noise d=s o|outp
 my $stdin = ($ARGV[-1] // '') eq '-';
 my $stdout;
 
+my $file = $args{input} // $ARGV[-1] // '';
+my $output = $args{output};
+
 if ($args{password}) {
-	$stdout = ($ARGV[-1] // '') eq '-' || !$args{output};
-	$stdin = ($ARGV[-2] // '') eq '-'|| !$args{input};
+	$stdout = ($ARGV[-1] // '') eq '-' || !$output;
+	$stdin = ($ARGV[-2] // '') eq '-'|| !$file;
 }
 
 if ($args{pwdgen}) {
@@ -44,8 +47,7 @@ unless ($salt) {
 	my $rand = new Strong::Random;
 	$salt = join'', map +(0..9,'a'..'z','A'..'Z')[$rand->rand(10+26*2)], 1..64;
 }
-my $file = $args{input} // $ARGV[-1] // '';
-my $output = $args{output};
+
 say $usage and exit  if !$stdout && !$output && !$uncrypt;
 
 if ($uncrypt) {
