@@ -155,7 +155,8 @@ Options:
     -n, --noise         Noise Generator
     -h, --help          Help
 
-Crypter developed by Ivan Trunaev, Russia, 2026  
+Crypter developed by Ivan Trunaev, Russia, 2026
+Contacts <trunaev.ivan.1987\@gmail.com>
 __EOF__
 
 	exit;
