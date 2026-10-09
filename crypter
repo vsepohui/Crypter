@@ -168,11 +168,4 @@ sub rand {
 	return $num ? int $num * $r : $r;
 }
 
-
-
-
-
-1;
-
-
 1;
