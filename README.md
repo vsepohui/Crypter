@@ -1,4 +1,4 @@
-Crypter - new kind of cryptography!
+Crypter: new kind of cryptography!
 
 # Using Crypter
 
