@@ -7,15 +7,15 @@ use Strong::Random;
 use Getopt::Long qw(GetOptions);
 
 
-my $usage = "Usage:\n\t$0 [--help|-h] [--input|-i=inputfile] [--output|-o=outputfile] [--slat|-s=random_string_for_crypter]";
+my $usage = "Usage:\n\t$0 [--help|-h] [--input|-i=inputfile] [--output|-o=outputfile] [--slat|-s=random_string_for_crypter] [input] [-]";
 my %args = process_command_line(qw/i|input=s o|output=s s|salt=s h|help/, $usage);
-
+my $stdin = ($ARGV[-1] // '') eq '-';
 
 my $slat = $args{salt} or say $usage and exit;
-my $file = $args{input} or say $usage and exit;
-my $output = $args{output} or say $usage and exit;
+my $file = $args{input} // $ARGV[-1] // '';
+my $output = $args{output} or say $usage and exit;;
 
-say "Not input file $file" unless -f $file;
+say "Not input file $file" if !$stdin && !-f $file;
 
 # Init randomerz
 my @random;
@@ -46,11 +46,16 @@ my $fo;
 open $fo, '>', $output;
 binmode $fo;
 
-my $fh;
-open $fh, $file;
-binmode $fh;
+my $fi;
+if (!$stdin) {
+	open $fi, $file;
+	binmode $fi;
+} else {
+	binmode STDIN;
+	$fi = \*STDIN;
+}
 
-while (my $str = <$fh>) {
+while (my $str = <$fi>) {
 	my @input = split //, $str;
 
 	my $out = '';
@@ -70,17 +75,14 @@ while (my $str = <$fh>) {
 	
 	print $fo $out;
 }
-close $fh;
+
+if (!$stdin) {
+	close $fi;
+}
 
 close $fo;
 
-
-
-
-if ($output) {
-
-}
-
+my $fh;
 open $fh, '>', $output .'.key';
 say $fh join ',', map {$_->{seed}} @random;
 close $fh;

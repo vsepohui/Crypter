@@ -7,11 +7,15 @@ use Strong::Random;
 use Getopt::Long qw(GetOptions);
 
 
-my $usage = "Usage:\n\t$0 [--help|-h] [--input|-i=inputfile] [--output|-o=outputfile]";
+my $usage = "Usage:\n\t$0 [--help|-h] [--input|-i=inputfile] [--output|-o=outputfile] [-] ";
 my %args = process_command_line(qw/i|input=s o|output=s p|password=s h|help/, $usage);
 
+my $stdout = ($ARGV[-1] // '') eq '-';
+
 my $file = $args{input} or say $usage and exit;
-my $output = $args{output} or say $usage and exit;
+my $output = $args{output};
+
+$stdout = 1 unless $output;
 
 say "Not input file $file" unless -f $file;
 say "No keyfile " . $file . '.key' unless -f $file . '.key';
@@ -29,8 +33,13 @@ my @random = map {{
 }} split /,/, $key;
 
 
+
 my $fo;
-open $fo, '>', $output;
+if (!$stdout) {
+	open $fo, '>', $output;
+} else {
+	$fo = \*STDOUT;
+}
 binmode $fo;
 
 open $fh, $file;
@@ -57,7 +66,10 @@ while (my $str = <$fh>) {
 	print $fo $out;
 }
 close $fh;
-close $fo;
+
+if (!$stdout) {
+	close $fo;
+}
 
 
 
