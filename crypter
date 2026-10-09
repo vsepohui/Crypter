@@ -7,86 +7,147 @@ use Strong::Random;
 use Getopt::Long qw(GetOptions);
 
 
-my $usage = "Usage:\n\t$0 [--help|-h] [--input|-i=inputfile] [--output|-o=outputfile] [--slat|-s=random_string_for_crypter] [input] [-]";
-my %args = process_command_line(qw/i|input=s o|output=s s|salt=s h|help/, $usage);
+my $usage = "Usage:\n\t$0 [--help|-h] [--input|-i=inputfile] [-d crypted_file] [--output|-o=outputfile] [--slat|-s=random_string_for_crypter] [input] [-]";
+my %args = process_command_line(qw/i|input=s d=s o|output=s s|salt=s h|help/, $usage);
 my $stdin = ($ARGV[-1] // '') eq '-';
 
-my $slat = $args{salt} or say $usage and exit;
+my $uncrypt = $args{d};
+my $salt = $args{salt};
+say $usage and exit if !$salt && !$uncrypt;
 my $file = $args{input} // $ARGV[-1] // '';
-my $output = $args{output} or say $usage and exit;;
+my $output = $args{output};
+say $usage and exit  if !$salt && !$uncrypt;
 
-say "Not input file $file" if !$stdin && !-f $file;
-
-# Init randomerz
-my @random;
-my $strong = $args{strong} || 256;
-for (1..int(length($slat)/2+.5)) {
-	my $rnd = new Strong::Random;
-	$rnd->rand();
+if ($uncrypt) {
+	$file = $uncrypt;
 	
-	my $p = substr($slat, 2*$_-2, 2);
-	$p .= ' ' if (length $p == 1);
-	
-	my $x = join '', map {ord} split //, $p;
-	
-	for (1..$x) {$rnd->rand()}
-	
-	my $seed = sprintf("%.8f", $rnd->{seed});
-	push @random, {
-		generator 	=> new Strong::Random($seed),
-		seed		=> $seed,
-	};
-}
+	say "Not input file $file" unless -f $file;
+	say "No keyfile " . $file . '.key' unless -f $file . '.key';
 
-my $input = '';
+	my $input = '';
 
-my $n = 0;
+	my $fh;
+	open $fh, $file . '.key';
+	my $key = join '', <$fh>;
+	close $fh;
 
-my $fo;
-open $fo, '>', $output;
-binmode $fo;
+	my @random = map {{
+		generator 	=> new Strong::Random($_), 
+		seed 		=> $_ 
+	}} split /,/, $key;
 
-my $fi;
-if (!$stdin) {
-	open $fi, $file;
-	binmode $fi;
-} else {
-	binmode STDIN;
-	$fi = \*STDIN;
-}
 
-while (my $str = <$fi>) {
-	my @input = split //, $str;
 
-	my $out = '';
-	for (my $i = 0 ; $i < scalar @input ; $i ++) {
-		my $chr = $input[$i];
-		my $ord = ord $chr;
-		
-		
-		my $r = $random[$n];
-		$n = 0 if (++$n >= scalar @random);
-		my $s = $r->{generator}->rand(256);
-		
-		my $ord2 = $ord ^ $s;
-		
-		$out .= chr $ord2;
+	my $fo;
+	if (!$stdin) {
+		open $fo, '>', $output;
+	} else {
+		$fo = \*STDOUT;
 	}
-	
-	print $fo $out;
+	binmode $fo;
+
+	open $fh, $file;
+	binmode $fh;
+
+	my $n = 0;
+	while (my $str = <$fh>) {
+		my @input = split //, $str;
+		my $out = '';
+		for (my $i = 0 ; $i < scalar @input ; $i ++) {
+			my $chr = $input[$i];
+			my $ord = ord $chr;
+			
+			
+			my $r = $random[$n];
+			$n = 0 if (++$n >= scalar @random);
+			my $s = $r->{generator}->rand(256);
+
+			
+			my $ord2 = $ord ^ $s;
+			
+			$out .= chr $ord2;
+		}
+		print $fo $out;
+	}
+	close $fh;
+
+	if (!$stdin) {
+		close $fo;
+	}
+
+} else {
+	say "Not input file $file" if !$stdin && !-f $file;
+
+	# Init randomerz
+	my @random;
+	my $strong = $args{strong} || 256;
+	for (1..int(length($salt)/2+.5)) {
+		my $rnd = new Strong::Random;
+		$rnd->rand();
+		
+		my $p = substr($salt, 2*$_-2, 2);
+		$p .= ' ' if (length $p == 1);
+		
+		my $x = join '', map {ord} split //, $p;
+		
+		for (1..$x) {$rnd->rand()}
+		
+		my $seed = sprintf("%.8f", $rnd->{seed});
+		push @random, {
+			generator 	=> new Strong::Random($seed),
+			seed		=> $seed,
+		};
+	}
+
+	my $input = '';
+
+	my $n = 0;
+
+	my $fo;
+	open $fo, '>', $output;
+	binmode $fo;
+
+	my $fi;
+	if (!$stdin) {
+		open $fi, $file;
+		binmode $fi;
+	} else {
+		binmode STDIN;
+		$fi = \*STDIN;
+	}
+
+	while (my $str = <$fi>) {
+		my @input = split //, $str;
+
+		my $out = '';
+		for (my $i = 0 ; $i < scalar @input ; $i ++) {
+			my $chr = $input[$i];
+			my $ord = ord $chr;
+			
+			
+			my $r = $random[$n];
+			$n = 0 if (++$n >= scalar @random);
+			my $s = $r->{generator}->rand(256);
+			
+			my $ord2 = $ord ^ $s;
+			
+			$out .= chr $ord2;
+		}
+		
+		print $fo $out;
+	}
+
+	if (!$stdin) {
+		close $fi;
+	}
+
+	close $fo;
+
+	my $fh;
+	open $fh, '>', $output .'.key';
+	say $fh join ',', map {$_->{seed}} @random;
+	close $fh;
 }
-
-if (!$stdin) {
-	close $fi;
-}
-
-close $fo;
-
-my $fh;
-open $fh, '>', $output .'.key';
-say $fh join ',', map {$_->{seed}} @random;
-close $fh;
-
 
 
 

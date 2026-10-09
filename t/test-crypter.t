@@ -20,7 +20,7 @@ sub test_crypted {
 
 	`cat /dev/random|head -n 10000 > $filename`;
 	`$Bin/../crypter -i $filename -o $filename.crypted -s $salt`;
-	`$Bin/../uncrypter -i $filename.crypted -o $filename.uncrypted`;
+	`$Bin/../crypter -d $filename.crypted -o $filename.uncrypted`;
 	my $diff = `diff $filename $filename.uncrypted`;
 
 	unlink $filename;
