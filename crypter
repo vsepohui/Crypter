@@ -15,16 +15,10 @@ my $slat = $args{salt} or say $usage and exit;
 my $file = $args{input} or say $usage and exit;
 my $output = $args{output} or say $usage and exit;
 
-my $input = '';
+say "Not input file $file" unless -f $file;
 
-my $fh;
-open $fh, $file;
-$input = join '', <$fh>;
-close $fh;
-
-
+# Init randomerz
 my @random;
-
 my $strong = $args{strong} || 256;
 for (1..int(length($slat)/2+.5)) {
 	my $rnd = new Strong::Random;
@@ -44,31 +38,47 @@ for (1..int(length($slat)/2+.5)) {
 	};
 }
 
-my @input = split //, $input;
+my $input = '';
 
 my $n = 0;
 
-my $out = '';
-for (my $i = 0 ; $i < scalar @input ; $i ++) {
-	my $chr = $input[$i];
-	my $ord = ord $chr;
+my $fo;
+open $fo, '>', $output;
+binmode $fo;
+
+my $fh;
+open $fh, $file;
+binmode $fh;
+
+while (my $str = <$fh>) {
+	my @input = split //, $str;
+
+	my $out = '';
+	for (my $i = 0 ; $i < scalar @input ; $i ++) {
+		my $chr = $input[$i];
+		my $ord = ord $chr;
+		
+		
+		my $r = $random[$n];
+		$n = 0 if (++$n >= scalar @random);
+		my $s = $r->{generator}->rand(256);
+		
+		my $ord2 = $ord ^ $s;
+		
+		$out .= chr $ord2;
+	}
 	
-	
-	my $r = $random[$n];
-	$n = 0 if (++$n >= scalar @random);
-	my $s = $r->{generator}->rand(256);
-	
-	my $ord2 = $ord ^ $s;
-	
-	$out .= chr $ord2;
+	print $fo $out;
 }
+close $fh;
+
+close $fo;
+
+
+
 
 if ($output) {
-	my $fh;
-	open $fh, '>', $output;
-	binmode $fh;
-	print $fh $out;
-	close $fh;
+
 }
 
 open $fh, '>', $output .'.key';
