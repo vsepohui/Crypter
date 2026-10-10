@@ -10,7 +10,8 @@ use POSIX qw(ceil);
 sub new {
 	my $class = shift;
 	my %opts = (
-		password	=> undef,
+		password	=> [],
+		seeds		=> [],
 		salt	 	=> undef,
 		obfuscate	=> undef,
 		@_,
@@ -38,18 +39,12 @@ sub _crypt_string {
 		$self->{n} = 0 if (++$self->{n} >= scalar @{$self->{random}});
 		
 		if ($self->{obfuscate}) {
-			my $nr = $r->{generator}->rand($self->{obfuscate});
-			for (1..$nr) {
-				$out .= chr $r->{generator}->rand(256);
-			}
+			my $nr = $r->rand($self->{obfuscate});
+			$out .= chr $r->rand(256) for 1..$nr;
 		}
 		
-		
-		for my $r (@{$self->{random}}) {
-			my $s = $r->{generator}->rand(256);
-			$ord ^= $s;
-		}
-		
+		$ord ^= $_->rand(256) for @{$self->{random}};
+
 		$out .= chr $ord;
 	}
 	
@@ -77,13 +72,9 @@ sub _init_random_by_password {
 		
 		my $seed = sprintf("%.8f", $rnd->{seed});
 		
-		push @random, {
-			generator 	=> new Strong::Random($seed),
-			seed		=> $seed,
-		};
+		push @{$self->{random}}, new Strong::Random($seed);
+		push @{$self->{seeds}}, $seed;
 	}
-	
-	$self->{random} = \@random;
 }
 
 sub crypt {
@@ -117,13 +108,12 @@ sub crypt {
 			
 			my $x = join '', map {ord} split //, $p;
 			
-			for (1..$x) {$rnd->rand()}
+			$rnd->rand() for 1..$x;
 			
 			my $seed = sprintf("%.8f", $rnd->{seed});
-			push @random, {
-				generator 	=> new Strong::Random($seed),
-				seed		=> $seed,
-			};
+			
+			push @{$self->{random}}, new Strong::Random($seed);
+			push @{$self->{seeds}}, $seed;
 		}
 		$self->{random} = \@random;
 	}
@@ -150,17 +140,7 @@ sub crypt {
 		}
 	}
 	
-	unless (defined $password) {
-		my $keys;
-		my @out;
-		for (map {$_->{seed}} @random) {
-			my ($a, $b) = split /\./;
-			push @out, sprintf("%Xx%X", $a, $b);
-			
-		}
-		return join ' ', @out;
-	}
-	
+	return join ' ', map {sprintf("%Xx%X", split /\./)} @{$self->{seeds}} unless defined $password;
 	return;
 }
 
@@ -186,25 +166,20 @@ sub uncrypt {
 	if ($password) {
 		$self->_init_random_by_password;
 	} else {
-		my @random;
 		if ($key =~ /x/) {
 			for (split /\s+/, $key) {
 				my ($a, $b) = split /x/, $_;
 				my $seed = hex ($a) . '.' . hex ($b);
-				push @random, {
-					generator 	=> new Strong::Random($seed), 
-					seed 		=> $seed, 
-				};
+				push @{$self->{random}}, new Strong::Random($seed);
+				push @{$self->{seeds}}, $seed;
 			}
 		} else {
 			# Support old format of keyfile
-			@random = map {{
-				generator 	=> new Strong::Random($_), 
-				seed 		=> $_ 
-			}} split /,/, $key;
+			for (split /,/, $key) {
+				push @{$self->{random}}, new Strong::Random($_);
+				push @{$self->{seeds}}, $_;
+			}
 		}
-		
-		$self->{random} = \@random;
 	}
 	
 	$self->{n} = 0;
@@ -219,14 +194,13 @@ sub uncrypt {
 				my $chr = $input[$i];
 				my $ord = ord $chr;
 				
-				
 				my $r = $self->{random}->[$self->{n}];
 				$self->{n} = 0 if (++$self->{n} >= scalar @{$self->{random}});
 
 				if ($self->{obfuscate}) {
-					my $nr = $r->{generator}->rand($self->{obfuscate});
+					my $nr = $r->rand($self->{obfuscate});
 					for (1..$nr) {
-						$r->{generator}->rand(256);
+						$r->rand(256);
 						$i ++;
 						if ($i >= scalar @input) {
 							$str = <$input>;
@@ -242,10 +216,7 @@ sub uncrypt {
 					$ord = ord $chr;
 				}
 				
-				for my $r (@{$self->{random}}) {
-					my $s = $r->{generator}->rand(256);
-					$ord ^= $s;
-				}
+				$ord ^= $_->rand(256) for @{$self->{random}};
 				
 				$out .= chr $ord;
 			}
@@ -268,21 +239,16 @@ sub uncrypt {
 
 			if ($self->{obfuscate}) {
 				my $nr = $r->{generator}->rand($self->{obfuscate});
-				for (1..$nr) {
-					$r->{generator}->rand(256);
-					$i ++;
-				}
+				$r->rand(256) for 1..$nr;
 				
+				$i += $nr;
 				$chr = $input[$i];
 				
 				$ord = ord $chr;
 			}
 			
-			for my $r (@{$self->{random}}) {
-				my $s = $r->{generator}->rand(256);
-				$ord ^= $s;
-			}
-			
+			$ord ^= $_->rand(256) for @{$self->{random}};
+						
 			$out .= chr $ord;
 		}
 		if (ref $output eq 'GLOB') {
