@@ -238,7 +238,7 @@ sub uncrypt {
 			$self->{n} = 0 if (++$self->{n} >= scalar @{$self->{random}});
 
 			if ($self->{obfuscate}) {
-				my $nr = $r->{generator}->rand($self->{obfuscate});
+				my $nr = $r->rand($self->{obfuscate});
 				$r->rand(256) for 1..$nr;
 				
 				$i += $nr;
