@@ -9,7 +9,7 @@ use Crypter;
 use FindBin qw($Bin);
 use lib "$Bin/../lib/";
 
-my %args = process_command_line(qw/i|input=s obfuscate=s g|pwdgen n|noise d o|output=s s|salt=s p|password=s h|help/);
+my %args = process_command_line(qw/i|input=s f|obfuscate=s g|pwdgen n|noise d o|output=s s|salt=s p|password=s h|help/);
 
 my $stdin = ($ARGV[-1] // '') eq '-';
 my $stdout;
@@ -149,6 +149,7 @@ Options:
     -p, --password      Password
     -i, --input         Input file, or STDIN
     -o, --output        Output file, or STDOUT
+    -f, --obfuscate		Obfuscation Level (default=0)
     -d                  Uncrypt file flag
     -s, --salt          Salt for generation random
     -g, --pwdgen        Password Generator
