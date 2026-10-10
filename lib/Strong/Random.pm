@@ -50,17 +50,20 @@ sub rand {
 	my $self = shift;
 	my $num = shift;
 	
-	my $r = ($self->_harmonic()+1)/2.0;
-	$self->{seed} *= $r+1.5;
-	$self->{seed} /= 2 if ($self->{seed} >= 100000000);
-
-	my $s = $r;
+	my $r = ($self->_harmonic()+1.0)/2.0+1.5;
+	
+	$self->{seed} *= $r;
+	$self->{seed} /= 2 while ($self->{seed} >= 100000000);
+	
+	my $s = sprintf("%0.42g", $r);
 	$s =~ s/\.//;
-	$r *= substr($s, -5, -1) || 0;
+	
+	$r *= substr($s, -5) || 0;
 	$r = substr($r, 0, 22);
+	
 	$r =~ s/\.//;
 	$r = '0.'.$r;
-
+	
 	return $num ? int $num * $r : $r;
 }
 
