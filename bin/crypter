@@ -5,6 +5,7 @@ use warnings;
 
 use Getopt::Long qw(GetOptions);
 use Crypter;
+use Pod::Usage qw(pod2usage);
 
 use FindBin qw($Bin);
 use lib "$Bin/../lib/";
@@ -136,31 +137,12 @@ if ($uncrypt) {
 }
 
 sub usage {
-	print <<__EOF__;
-Usage: crypter [OPTIONS] [INPUT] [OUTPUT] [-] [-]
-
-       crypter -p password input.txt output.txt
-       crypter -p password -d -
-       crypter -d -p password crypted.txt
-       crypter -g
-       crypter -n
-	
-Options:
-    -p, --password      Password
-    -i, --input         Input file, or STDIN
-    -o, --output        Output file, or STDOUT
-    -f, --obfuscate		Obfuscation Level (default=0)
-    -d                  Uncrypt file flag
-    -s, --salt          Salt for generation random
-    -g, --pwdgen        Password Generator
-    -n, --noise         Noise Generator
-    -h, --help          Help
-
-Crypter developed by Ivan Trunaev, Russia, 2026
-Contacts <ivan\@trunaev.ru>
-__EOF__
-
-
+	my $file = @_ ? "$_[0]" : (caller)[1];
+	open my $handle, '>', \my $output;
+	pod2usage -exitval => 'noexit', -input => $file, -output => $handle;
+	$output =~ s/^.*\n|\n$//;
+	$output =~ s/\n$//g;
+	say $output;
 	exit;
 }
 
@@ -215,9 +197,7 @@ Options:
     -n, --noise         Noise Generator
     -h, --help          Help
 
-=head1 SEE ALSO
 
 Crypter developed by Ivan Trunaev, Russia, 2026
-Contacts <ivan\@trunaev.ru>
-
+Contacts <ivan@trunaev.ru>
 =cut
