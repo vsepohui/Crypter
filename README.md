@@ -4,7 +4,7 @@ Crypter: new kind of cryptography!
 # Installation
 
 ```
-curl -s https://vsepohui.ru/crypter.sh | sudo  sh
+curl -s https://vsepohui.ru/crypter.sh | sudo sh
 ```
 
 # Using Crypter
