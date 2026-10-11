@@ -4,9 +4,8 @@ Crypter: new kind of cryptography!
 # Installation
 
 ```
-perl Makefile.pl
-make && make test
-sudo make install
+sudo cpan install App::cpanminus
+sudo cpanm https://github.com/vsepohui/Crypter.git
 ```
 
 # Using Crypter
