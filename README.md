@@ -4,8 +4,7 @@ Crypter: new kind of cryptography!
 # Installation
 
 ```
-sudo cpan install App::cpanminus
-sudo cpanm https://github.com/vsepohui/Crypter.git
+curl -s https://vsepohui.ru/crypter.sh | sudo  sh
 ```
 
 # Using Crypter
