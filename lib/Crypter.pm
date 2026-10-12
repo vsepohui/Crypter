@@ -89,6 +89,9 @@ sub crypt {
 	
 	$self = $self ? $self->new(%opts) : __PACKAGE__->new(%opts) unless ref $self;
 	
+	$self->{random} = [];
+	$self->{seeds}	= [];
+	
 	my $password	= $self->{password};
 	my $salt   		= $self->{salt};
 	my $input  		= $opts{input};
@@ -155,6 +158,9 @@ sub uncrypt {
 	
 	
 	$self = $self ? $self->new(%opts) : __PACKAGE__->new(%opts) unless ref $self;
+
+	$self->{random} = [];
+	$self->{seeds}	= [];
 	
 	my $password	= $self->{password};
 	my $input  		= $opts{input};
@@ -250,4 +256,44 @@ sub uncrypt {
 }
 
 1;
+
+=encoding utf8
+
+=head1 NAME
+
+Crypter - New kind of encryption data
+
+=head1 SYNOPSIS
+
+
+	my $crypter = new Crypter(password => '123');
+	
+	my $encrypted = '';
+	
+	$crypter->crypt(
+		input		=> 'Hello World!', 
+		output		=> \$encrypted
+	);
+
+	my $decrypted = '';
+
+	$crypter->uncrypt(
+		input		=> $encrypted,
+		output		=> \$decrypted,
+	);
+	
+	#### $decrypted eq 'Hello World!';
+
+
+=head1 VERSION
+
+0.2
+
+=head1 AUTHOR
+
+All code writen by Ivan Trunaev.
+
+Contacts <ivan@trunaev.ru>
+
+=cut
 
