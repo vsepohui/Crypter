@@ -28,6 +28,9 @@ if ($args{password}) {
 	$stdin = ($ARGV[-2] // '') eq '-'|| !$file;
 }
 
+binmode STDIN;
+binmode STDOUT;
+
 if ($args{pwdgen}) {
 	my $rand = new Strong::Random;
 	my $pwd = join'', map +(0..9,'a'..'z','A'..'Z')[$rand->rand(10+26*2)], 1..64;
