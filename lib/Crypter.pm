@@ -136,13 +136,13 @@ sub uncrypt {
 	return $out;
 }
 
-sub cleanup {
+sub reset {
 	my $self = shift;
 	
-	$self->{random} = [];
-	$self->{seeds}	= [];
 	$self->{n}      = 0;
 	$self->{uncrypt_obfuscate_overstep} = 0;
+	
+	$self->init_randoms_by_password();
 }
 
 1;

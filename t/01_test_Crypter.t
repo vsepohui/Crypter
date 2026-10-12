@@ -13,6 +13,8 @@ sub test {
 	my $crypter = new Crypter(password => '123');
 	
 	my $encrypted = $crypter->crypt('Hello World!');
+	
+	$crypter->reset();
 
 	my $decrypted = $crypter->uncrypt($encrypted);
 	

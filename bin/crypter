@@ -67,7 +67,7 @@ my $crypter = new Crypter(
 	obfuscate	=> $obfuscate,
 );
 
-for (my $i = <$fi>) {
+while (my $i = <$fi>) {
 	if ($uncrypt) {
 		print $fo $crypter->uncrypt($i);
 	} else {
