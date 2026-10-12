@@ -4,6 +4,7 @@ use 5.022;
 use warnings;
 
 use Strong::Random;
+use AnyEvent;
 use POSIX qw(ceil);
 
 our $VERSION = '0.6';
@@ -125,14 +126,23 @@ sub crypt {
 	local $| = 1;
 
 	if (ref $input eq 'GLOB') {
-		while (my $str = <$input>) {
-			my $out = $self->_crypt_string($str);			
-			if (ref $output eq 'GLOB') {
-				print $output $out;
-			} else {
-				$$output .= $out;
+		my $cv = AE::cv;
+		my $w = AnyEvent->io(
+			fh => $input,
+			poll => 'r',
+			cb => sub {
+				my $can = sysread $input, my $buf, 1;
+				my $out = $self->_crypt_string($buf);
+				if (ref $output eq 'GLOB') {
+					print $output $out;
+				} else {
+					$$output .= $out;
+				}
+				
+				$cv->send unless $can;
 			}
-		}
+		);
+		$cv->recv;
 	} else {
 		my $out = $self->_crypt_string($input);
 		if (ref $output eq 'GLOB') {
@@ -183,44 +193,39 @@ sub uncrypt {
 	local $| = 1;
 	
 	if (ref $input eq 'GLOB') {
-		while (my $str = <$input>) {
-			my @input = split //, $str;
-			my $out = '';
-			for (my $i = 0 ; $i < scalar @input ; $i ++) {
-				my $chr = $input[$i];
+		
+		my $cv = AE::cv;
+		my $w = AnyEvent->io(
+			fh => $input,
+			poll => 'r',
+			cb => sub {
+				my $can = sysread $input, my $buf, 1;
+				
+				my $out = '';
+				
+				my $chr = $buf;
 				my $ord = ord $chr;
 				
 				my $r = $self->{random}->[$self->{n}];
 				$self->{n} = 0 if (++$self->{n} >= scalar @{$self->{random}});
 
-				if ($self->{obfuscate}) {
-					my $nr = $r->rand($self->{obfuscate});
-					for (1..$nr) {
-						$r->rand(256);
-						$i ++;
-						if ($i >= scalar @input) {
-							$str = <$input>;
-							die "Crypt Error" unless defined $str;
-							push @input, split //, $str;
-						}
-					}
-					
-					die "Crypt Error" unless defined $input[$i];
-					$chr = $input[$i];
-				
-					
-					$ord = ord $chr;
-				}
-				
 				$ord ^= $_->rand(256) for @{$self->{random}};
 				
 				$out .= chr $ord;
+
+				if (ref $output eq 'GLOB') {
+					print $output $out;
+				} else {
+					$$output .= $out;
+				}
+					
+				$cv->send unless $can;
 			}
-			if (ref $output eq 'GLOB') {
-				print $output $out;
-			} else {
-				$$output .= $out;
-			}
+		);
+		$cv->recv;
+		
+		while (my $str = <$input>) {
+
 		}
 	} else {
 		my @input = split //, $input;
