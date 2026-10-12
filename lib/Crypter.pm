@@ -38,6 +38,9 @@ sub new {
 sub init_randoms_by_password {
 	my $self = shift;
 	
+	$self->{random}	= [];
+	$self->{seeds}	= [];	
+	
 	my $password = $self->{password} // die "Password is not specified";
 	my @random = ();
 	
