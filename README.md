@@ -4,7 +4,7 @@ Crypter: new kind of cryptography!
 # Installation
 
 ```
-curl -s https://vsepohui.ru/crypter.sh | sudo sh
+curl -L https://cpanmin.us | perl - -M https://cpan.metacpan.org -n Crypter
 ```
 
 # Using Crypter
