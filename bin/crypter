@@ -176,26 +176,27 @@ crypter - Console tool for crypting data
 
 =head1 SYNOPSIS
 
-Usage: crypter [OPTIONS] [INPUT] [OUTPUT] [-] [-]
+    Usage: crypter [OPTIONS] [INPUT] [OUTPUT] [-] [-]
+    
+        crypter -p password input.txt output.txt
+        crypter -p password -d -
+        crypter -d -p password crypted.txt
+        crypter -g
+        crypter -n
+    
+    Options:
+    
+        -p, --password      Password
+        -i, --input         Input file, or STDIN
+        -o, --output        Output file, or STDOUT
+        -f, --obfuscate     Obfuscation Level (default=0)
+        -d                  Uncrypt file flag
+        -s, --salt          Salt for generation random
+        -g, --pwdgen        Password Generator
+        -n, --noise         Noise Generator
+        -h, --help          Help
 
-       crypter -p password input.txt output.txt
-       crypter -p password -d -
-       crypter -d -p password crypted.txt
-       crypter -g
-       crypter -n
-	
-Options:
-
-    -p, --password      Password
-    -i, --input         Input file, or STDIN
-    -o, --output        Output file, or STDOUT
-    -f, --obfuscate     Obfuscation Level (default=0)
-    -d                  Uncrypt file flag
-    -s, --salt          Salt for generation random
-    -g, --pwdgen        Password Generator
-    -n, --noise         Noise Generator
-    -h, --help          Help
-
+=AUTHOR
 
 Crypter developed by Ivan Trunaev, Russia, 2026
 
