@@ -4,8 +4,6 @@ use 5.022;
 use warnings;
 
 use Strong::Random;
-use AnyEvent;
-use AnyEvent::IO;
 use POSIX qw(ceil);
 
 our $VERSION = '1.0';
