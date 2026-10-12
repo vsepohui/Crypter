@@ -6,7 +6,7 @@ use warnings;
 use Strong::Random;
 use POSIX qw(ceil);
 
-our $VERSION = '0.2';
+our $VERSION = '0.3';
 
 sub new {
 	my $class = shift;

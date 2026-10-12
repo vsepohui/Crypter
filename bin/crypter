@@ -172,7 +172,7 @@ sub process_command_line {
 
 =head1 NAME
 
-crypter - Consolte tool for crypting data
+crypter - Console tool for crypting data
 
 =head1 SYNOPSIS
 
