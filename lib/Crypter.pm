@@ -6,6 +6,7 @@ use warnings;
 use Strong::Random;
 use POSIX qw(ceil);
 
+our $VERSION = '0.2';
 
 sub new {
 	my $class = shift;
@@ -104,8 +105,8 @@ sub crypt {
 			$rnd->rand();
 			
 			my $p = substr($salt, 2*$_-2, 2);
-			$p .= ' ' if (length $p == 1);
-			
+			$p .= ' ' x (2 - length ($p)) if (length $p < 2);
+
 			my $x = join '', map {ord} split //, $p;
 			
 			$rnd->rand() for 1..$x;
@@ -166,6 +167,7 @@ sub uncrypt {
 	if ($password) {
 		$self->_init_random_by_password;
 	} else {
+		warn $key;
 		if ($key =~ /x/) {
 			for (split /\s+/, $key) {
 				my ($a, $b) = split /x/, $_;

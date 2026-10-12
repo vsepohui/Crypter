@@ -54,8 +54,6 @@ unless ($salt) {
 usage() if !$stdout && !$output && !$uncrypt;
 
 if ($uncrypt) {
-	$stdin = 1 if !$output;
-	
 	die "Not input file $file" if !-f $file && !$stdin;
 	die "No keyfile " . $file . '.key' if !$password && !-f $file . '.key';
 
@@ -63,15 +61,16 @@ if ($uncrypt) {
 	
 	my $key;
 	
+
 	unless ($password) {
 		my $fh;
 		open $fh, $file . '.key';
-		my $key = join '', <$fh>;
+		$key = join '', <$fh>;
 		close $fh;
 	}
-	
+
 	my $fo;
-	if (!$stdout) {
+	if (!$stdout && $output) {
 		open $fo, '>', $output;
 	} else {
 		$fo = \*STDOUT;
