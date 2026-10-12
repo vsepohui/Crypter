@@ -130,7 +130,7 @@ if ($uncrypt) {
 	unless (defined $password) {
 		my $fh;
 		open $fh, '>', $output .'.key';
-		say $fh $keys;
+		print $fh $keys;
 		close $fh;
 	}
 }

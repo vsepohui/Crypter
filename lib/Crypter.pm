@@ -11,7 +11,8 @@ our $VERSION = '0.2';
 sub new {
 	my $class = shift;
 	my %opts = (
-		password	=> [],
+		password	=> undef,
+		random		=> [],
 		seeds		=> [],
 		salt	 	=> undef,
 		obfuscate	=> undef,
@@ -95,8 +96,9 @@ sub crypt {
 	
 	$$output = '' if ref $output eq 'SCALAR';
 	
+	$self->{n} = 0;
+	
 	# Init randomerz
-	my @random;
 	if (defined $password) {
 		$self->_init_random_by_password;
 	} else {
@@ -112,14 +114,10 @@ sub crypt {
 			$rnd->rand() for 1..$x;
 			
 			my $seed = sprintf("%.8f", $rnd->{seed});
-			
 			push @{$self->{random}}, new Strong::Random($seed);
 			push @{$self->{seeds}}, $seed;
 		}
-		$self->{random} = \@random;
 	}
-	
-	$self->{n} = 0;	
 	
 	local $| = 1;
 
@@ -141,7 +139,7 @@ sub crypt {
 		}
 	}
 	
-	return join ' ', map {sprintf("%Xx%X", split /\./)} @{$self->{seeds}} unless defined $password;
+	return join ',', @{$self->{seeds}} unless defined $password;
 	return;
 }
 
@@ -155,6 +153,7 @@ sub uncrypt {
 		@_,
 	);
 	
+	
 	$self = $self ? $self->new(%opts) : __PACKAGE__->new(%opts) unless ref $self;
 	
 	my $password	= $self->{password};
@@ -167,20 +166,9 @@ sub uncrypt {
 	if ($password) {
 		$self->_init_random_by_password;
 	} else {
-		warn $key;
-		if ($key =~ /x/) {
-			for (split /\s+/, $key) {
-				my ($a, $b) = split /x/, $_;
-				my $seed = hex ($a) . '.' . hex ($b);
-				push @{$self->{random}}, new Strong::Random($seed);
-				push @{$self->{seeds}}, $seed;
-			}
-		} else {
-			# Support old format of keyfile
-			for (split /,/, $key) {
-				push @{$self->{random}}, new Strong::Random($_);
-				push @{$self->{seeds}}, $_;
-			}
+		for (split /,/, $key) {
+			push @{$self->{random}}, new Strong::Random($_);
+			push @{$self->{seeds}}, $_;
 		}
 	}
 	
