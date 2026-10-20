@@ -6,7 +6,7 @@ use warnings;
 use Strong::Random;
 use POSIX qw(ceil);
 
-our $VERSION = '1.0';
+our $VERSION = '1.01';
 
 sub new {
 	my $class = shift;
@@ -162,6 +162,8 @@ Crypter - New kind of encryption data
 	my $encrypted = '';
 	
 	my $encrypted = $crypter->crypt('Hello World!');
+	
+	$crypter->reset(); # Needeble for cleanup internals
 
 	my $decrypted = $crypter->uncrypt($encrypted);
 	
@@ -170,7 +172,7 @@ Crypter - New kind of encryption data
 
 =head1 VERSION
 
-1.0
+1.01
 
 =head1 AUTHOR
 
