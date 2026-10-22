@@ -13,7 +13,6 @@ sub new {
 	my %opts = (
 		password	=> undef,
 		random		=> [],
-		seeds		=> [],
 		n			=> 0,
 		obfuscate   => 0,
 		uncrypt_obfuscate_overstep => 0,
@@ -37,7 +36,6 @@ sub init_randoms_by_password {
 	my $self = shift;
 	
 	$self->{random}	= [];
-	$self->{seeds}	= [];	
 	
 	my $password = $self->{password} // die "Password is not specified";
 	my @random = ();
@@ -47,18 +45,21 @@ sub init_randoms_by_password {
 		$p .= ' 'x (4 - length $p) if (length $p < 4);
 		
 
-		my $x = sprintf("%.49f", unpack('f', $p));
-		$x = $x ? 1 / $x : 0;
-
+		my $x = unpack('I!', $p);
+	
+		$x = $x ? 1.0 / $x : 0;
+		
+		
 		my $rnd = new Strong::Random($x);
 		$rnd->rand();
 		
-		$rnd->rand for 1..unpack('s', $p) % 256;
+		my $nn = unpack('I!', $p) % 256;
+
+		$rnd->rand for 1..$nn;
 		
-		my $seed = sprintf("%.8f", $rnd->{seed});
+		my $seed = sprintf("%.8g", $rnd->{seed});
 		
 		push @{$self->{random}}, new Strong::Random($seed);
-		push @{$self->{seeds}}, $seed;
 	}
 }
 
@@ -82,7 +83,6 @@ sub crypt {
 		}
 		
 		$ord ^= $_->rand(256) for @{$self->{random}};
-
 		$out .= chr $ord;
 	}
 	
@@ -130,7 +130,6 @@ sub uncrypt {
 		}
 		
 		$ord ^= $_->rand(256) for @{$self->{random}};
-					
 		$out .= chr $ord;
 	}
 	
