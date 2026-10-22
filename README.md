@@ -49,3 +49,9 @@ crypter --noise
 Crypter coded by Ivan Trunaev, Russia, Uray.
 
 Based of XOR-algorithm and Black-Noise Generator Strong::Random, developed by Ivan Trunaev.
+
+# Licence 
+
+Commercial support by Author for Open Source!
+
+Contact <ivan@trunaev.ru>
